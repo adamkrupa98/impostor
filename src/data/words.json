@@ -1,0 +1,23 @@
+{
+  "jedzenie": [
+    { "word": "pizza", "hints": ["włoska", "serowa"] },
+    { "word": "kiełbasa", "hints": ["wędzona", "mięsna"] },
+    { "word": "lody", "hints": ["zimne", "deser"] },
+    { "word": "pierogi", "hints": ["faszerowane", "gotowane"] },
+    { "word": "tost", "hints": ["chrupiący", "śniadanie"] }
+  ],
+  "zwierzęta": [
+    { "word": "pies", "hints": ["lojalny", "czworonożny"] },
+    { "word": "kot", "hints": ["mruczy", "zwinny"] },
+    { "word": "słoń", "hints": ["trąba", "masywny"] },
+    { "word": "pingwin", "hints": ["lotnynie", "czarno-biały"] },
+    { "word": "koala", "hints": ["eukaliptus", "śpiący"] }
+  ],
+  "przedmioty": [
+    { "word": "komputer", "hints": ["ekran", "procesor"] },
+    { "word": "telefon", "hints": ["aplikacja", "dzwonek"] },
+    { "word": "rower", "hints": ["pedał", "kierownica"] },
+    { "word": "zegarek", "hints": ["tarcza", "wskazówki"] },
+    { "word": "książka", "hints": ["strona", "okładka"] }
+  ]
+}
