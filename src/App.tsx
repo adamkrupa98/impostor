@@ -6,11 +6,12 @@ import Stats from './pages/Stats'
 import GameInProggress from './pages/GameInProggress'
 import { Navigate } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
-
+import { GameSettingProvider } from './context/GameSettingContext'
 function App() {
 
   return (
     <>      
+    <GameSettingProvider>
       <BrowserRouter>
         <Routes>
            <Route path='/' element={<Navigate to="/home" replace/>}/> 
@@ -22,6 +23,7 @@ function App() {
            </Route>
         </Routes>
       </BrowserRouter>
+    </GameSettingProvider>
     </>
   )
 }

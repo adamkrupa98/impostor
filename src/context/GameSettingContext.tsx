@@ -1,5 +1,4 @@
-import { Children, createContext } from "react";
-import type { Provider } from "react";
+import { createContext } from "react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
@@ -92,28 +91,36 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
     }
 
     const selectRolesForPlayers = () => {
-      let roles = [];
+      let roles: Role[] = [];
       const copyPlayers = [...players];
-      
-      for (let i = 0; i< numImpostors; i++) {
-        let randomIndex = Math.floor(Math.random() * copyPlayers.length);
-        let impostor = copyPlayers[i];
-        roles.push({name:impostor, role: 'impostor'});
-        copyPlayers.splice(randomIndex,1);
-      }
+      let draw = Math.random();
 
-      copyPlayers.forEach(player => {
-        roles.push({name: player, role: 'civilian'})
-      })
-    }
-
-    const selectWord = () => {
-        const loadWord = async() =>{
-            const res = await fetch("./data/words.json")
-            const data = await res.json();
-            console.log(data);
+      if (allowAllImpostors == true && draw < 0.1) {
+        copyPlayers.forEach(player => {
+            roles.push({name: player, role: 'impostor'})
+        })
+      } else {
+        for (let i = 0; i< numImpostors; i++) {
+            let randomIndex = Math.floor(Math.random() * copyPlayers.length);
+            let impostor = copyPlayers[randomIndex];
+            roles.push({name:impostor, role: 'impostor'});
+            copyPlayers.splice(randomIndex,1);
         }
+
+        copyPlayers.forEach(player => {
+            roles.push({name: player, role: 'civilian'})
+        })
+      }
+      
+      setRoles(roles);
     }
+
+    const selectWord = async() =>{
+        const res = await fetch("./data/words.json")
+        const data = await res.json();
+        console.log(data);
+    }
+    
 
     const startGame = () => {
         selectRolesForPlayers();
