@@ -1,6 +1,8 @@
 import { createContext } from "react";
 import type { ReactNode } from "react";
 import { useState } from "react";
+import { useEffect } from "react";
+import wordsData from "../data/words.json";
 
 type GameSettingProvider = {
     children: ReactNode
@@ -13,7 +15,7 @@ type Role = {
 
 type Setting = {
     numImpostors: number,
-    categories: string[],
+    selectedCategories: string[],
     allowAllImpostors: boolean,
     impostorsHint: boolean,
 }
@@ -27,12 +29,14 @@ type GameSettingContextType = {
     allowAllImpostors: boolean,
     impostorsHint: boolean,
     word: string,
+    hint: string,
+    startGame: boolean,
     roles: Role[],
     addPlayer: (name: string) => void,
     removePlayer: (name: string) => void,
     setGameSetting: (settings: Setting) => void,
     resetGame: () => void,
-    startGame: () => void
+    start: () => void
 }
 
 export const GameSettingContext = createContext<GameSettingContextType>({
@@ -43,12 +47,14 @@ export const GameSettingContext = createContext<GameSettingContextType>({
     allowAllImpostors: false,
     impostorsHint: false,
     word: '',
+    hint : '',
+    startGame: false,
     roles: [],
     addPlayer: () => {},
     removePlayer: () => {},
     setGameSetting: () => {},
     resetGame: () => {},
-    startGame: () => {}
+    start: () => {}
 });
 
 
@@ -59,7 +65,9 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
     const [category, setCategory] = useState<string[]>([]);
     const [allowAllImpostors, setAllowaAllImpostors] = useState<boolean>(false);
     const [impostorsHint, setImpostorsHint] = useState<boolean>(false);
+    const [startGame, setStartGame] = useState<boolean>(false);
     const [word, setWord] = useState<string>('');
+    const [hint, setHint] = useState<string>('');
     const [roles, setRoles] = useState<Role[]>([]);
 
 
@@ -75,7 +83,7 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
 
     const setGameSetting = (settings: Setting) => {
         setNumImpostors(settings.numImpostors);
-        setCategory(settings.categories);
+        setCategory(settings.selectedCategories);
         setAllowaAllImpostors(settings.allowAllImpostors);
         setImpostorsHint(settings.impostorsHint);
     } 
@@ -91,43 +99,54 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
     }
 
     const selectRolesForPlayers = () => {
-      let roles: Role[] = [];
+      let newRoles: Role[] = [];
       const copyPlayers = [...players];
       let draw = Math.random();
 
       if (allowAllImpostors == true && draw < 0.1) {
         copyPlayers.forEach(player => {
-            roles.push({name: player, role: 'impostor'})
+            newRoles.push({name: player, role: 'impostor'})
         })
       } else {
         for (let i = 0; i< numImpostors; i++) {
             let randomIndex = Math.floor(Math.random() * copyPlayers.length);
             let impostor = copyPlayers[randomIndex];
-            roles.push({name:impostor, role: 'impostor'});
+            newRoles.push({name:impostor, role: 'impostor'});
             copyPlayers.splice(randomIndex,1);
         }
-
         copyPlayers.forEach(player => {
-            roles.push({name: player, role: 'civilian'})
+            newRoles.push({name: player, role: 'civilian'})
         })
       }
-      
-      setRoles(roles);
+      setRoles(newRoles);
     }
 
-    const selectWord = async() =>{
-        const res = await fetch("./data/words.json")
-        const data = await res.json();
-        console.log(data);
+    const selectWord = () =>{
+        const possibleWords = category.flatMap(cat => wordsData[cat as keyof typeof wordsData]);
+        if (possibleWords.length === 0) return;
+        const indexWord:number = Math.floor(Math.random() * possibleWords.length);
+        const indexHint:number = Math.floor(Math.random() * 2);
+        let selectedWord = possibleWords[indexWord].word;
+        let selectedHint = possibleWords[indexWord].hints[indexHint];
+        setWord(selectedWord);
+        setHint(selectedHint);
     }
-    
 
-    const startGame = () => {
+    const start = () => {
         selectRolesForPlayers();
-        selectWord()
+        selectWord();
+        setStartGame(true);
+    };
 
+    useEffect(() => {
+    if (players.length && numImpostors && category.length) {
+        start();
     }
+}   , [players, numImpostors, category]);
 
+    useEffect(() => {
+        console.log("WORD UPDATED:", word, hint);
+    }, [word, hint]);
     return(
 <GameSettingContext.Provider value={{
   players,
@@ -137,12 +156,14 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
   allowAllImpostors,
   impostorsHint,
   word,
+  hint,
+  startGame,
   roles,
   addPlayer,
   removePlayer,
   setGameSetting,
   resetGame,
-  startGame
+  start
 }}>
     {children}
    </GameSettingContext.Provider>
