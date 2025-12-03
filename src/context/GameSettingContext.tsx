@@ -32,11 +32,13 @@ type GameSettingContextType = {
     hint: string,
     startGame: boolean,
     roles: Role[],
+    gameCounter: number,
     addPlayer: (name: string) => void,
-    removePlayer: (name: string) => void,
+    removePlayer: (name: number) => void,
     setGameSetting: (settings: Setting) => void,
     resetGame: () => void,
-    start: () => void
+    start: () => void,
+    nextGame: () => void
 }
 
 export const GameSettingContext = createContext<GameSettingContextType>({
@@ -50,11 +52,13 @@ export const GameSettingContext = createContext<GameSettingContextType>({
     hint : '',
     startGame: false,
     roles: [],
+    gameCounter: 0,
     addPlayer: () => {},
     removePlayer: () => {},
     setGameSetting: () => {},
     resetGame: () => {},
-    start: () => {}
+    start: () => {},
+    nextGame: () => {}
 });
 
 
@@ -69,15 +73,17 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
     const [word, setWord] = useState<string>('');
     const [hint, setHint] = useState<string>('');
     const [roles, setRoles] = useState<Role[]>([]);
-
+    const [gameCounter, setGameCounter] = useState<number>(0)
 
     const addPlayer = (name:string) => {
         setPlayers(prev => [...prev, name]);
         setNumPlayers(prev => prev +1);
     }
 
-    const removePlayer = (name: string) => {
-        setPlayers(prev => prev.filter(player => player != name));
+    const removePlayer = (index: number) => {
+        let copyPlayers = [...players];
+        copyPlayers.splice(index,1);
+        setPlayers(copyPlayers);
         setNumPlayers(prev => prev -1);
     }
 
@@ -87,6 +93,7 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
         setAllowaAllImpostors(settings.allowAllImpostors);
         setImpostorsHint(settings.impostorsHint);
     } 
+
     const resetGame = () =>{
         setPlayers([]);
         setNumPlayers(0);
@@ -98,25 +105,33 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
         setRoles([]);
     }
 
+    const nextGame = () => {
+        setGameCounter(prev => prev + 1);
+    }
     const selectRolesForPlayers = () => {
       let newRoles: Role[] = [];
       const copyPlayers = [...players];
       let draw = Math.random();
-
+      let impostorsIndex: number[] = [];
       if (allowAllImpostors == true && draw < 0.1) {
         copyPlayers.forEach(player => {
             newRoles.push({name: player, role: 'impostor'})
         })
       } else {
         for (let i = 0; i< numImpostors; i++) {
-            let randomIndex = Math.floor(Math.random() * copyPlayers.length);
-            let impostor = copyPlayers[randomIndex];
-            newRoles.push({name:impostor, role: 'impostor'});
-            copyPlayers.splice(randomIndex,1);
+            let randomIndex;
+               do {
+                randomIndex = Math.floor(Math.random() * copyPlayers.length);
+            } while (impostorsIndex.includes(randomIndex));
+
+            impostorsIndex.push(randomIndex);   
         }
-        copyPlayers.forEach(player => {
-            newRoles.push({name: player, role: 'civilian'})
-        })
+
+        for (let i = 0; i < copyPlayers.length; i++) {
+            newRoles[i] = impostorsIndex.includes(i)
+                ? { name: copyPlayers[i], role: "impostor" }
+                : { name: copyPlayers[i], role: "civilian" };
+                }
       }
       setRoles(newRoles);
     }
@@ -142,7 +157,7 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
     if (players.length && numImpostors && category.length) {
         start();
     }
-}   , [players, numImpostors, category]);
+}   , [players, numImpostors, category, gameCounter]);
 
     useEffect(() => {
         console.log("WORD UPDATED:", word, hint);
@@ -159,11 +174,13 @@ export const GameSettingProvider = ( {children} : GameSettingProvider) => {
   hint,
   startGame,
   roles,
+  gameCounter,
   addPlayer,
   removePlayer,
   setGameSetting,
   resetGame,
-  start
+  start,
+  nextGame
 }}>
     {children}
    </GameSettingContext.Provider>

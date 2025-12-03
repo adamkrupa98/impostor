@@ -7,6 +7,7 @@ import GameInProggress from './pages/GameInProggress'
 import { Navigate } from 'react-router-dom'
 import MainLayout from './layouts/MainLayout'
 import { GameSettingProvider } from './context/GameSettingContext'
+import Results from './pages/Results'
 function App() {
 
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route path='/settings' element={<PrepareGame />} /> 
             <Route path='/stats' element={<Stats/>} /> 
             <Route path='/play' element={<GameInProggress/>} /> 
+            <Route path='/results' element={<Results />} />
            </Route>
         </Routes>
       </BrowserRouter>

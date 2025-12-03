@@ -4,7 +4,7 @@ import wordsData from "../data/words.json";
 import { Toggle } from "../components/Toogle";
 import { useNavigate } from "react-router-dom";
 const PrepareGame = () => {
-  const { addPlayer, removePlayer, players, start, setGameSetting, impostorsHint: contextImpostorHint, allowAllImpostors: contextAllowAllImpostors, category, numImpostors: contextNumImpostors } = useContext(GameSettingContext);
+  const { addPlayer, removePlayer, players, nextGame, setGameSetting, impostorsHint: contextImpostorHint, allowAllImpostors: contextAllowAllImpostors, category, numImpostors: contextNumImpostors } = useContext(GameSettingContext);
 
   const [name, setName] = useState<string>("");
   const categories = Object.keys(wordsData);
@@ -38,6 +38,7 @@ const PrepareGame = () => {
       allowAllImpostors,
       impostorsHint,
     });
+    nextGame();
     navigate("/play");
   };
 
@@ -87,7 +88,7 @@ const PrepareGame = () => {
                   {p}
                 </span>
                 <button
-                  onClick={() => removePlayer(p)}
+                  onClick={() => removePlayer(index)}
                   className="text-red-400 hover:text-red-200 transition"
                 >
                   ✕
