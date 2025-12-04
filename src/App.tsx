@@ -15,7 +15,7 @@ function App() {
     <GameSettingProvider>
       <BrowserRouter>
         <Routes>
-           <Route path='/' element={<Navigate to="/home" replace/>}/> 
+           <Route path='/' element={<Navigate to="/settings" replace/>}/> 
            <Route element={<MainLayout />}>
             <Route path='/home' element={<Home />} /> 
             <Route path='/settings' element={<PrepareGame />} /> 
